@@ -1,66 +1,65 @@
 $(document).ready(function () {
-  const gd_startX = 90;
-  const gd_startY = 45;
-  const gd_endX = 190;
-  const gd_endY = 660;
-  const bg_color = '#29005E';
-  const gd_startColor = 'rgba(0,0,0,0.39)';
-  const gd_endColor = 'rgba(0,0,0,0)';
-  const block_size = 30.6;
-  const block_gap = 2.11;
-  const zoomRatio = (block_size / 21);
-
   var stage;
+  var context;
   var draggerObj;
   var dropObj;
   var destination;
   var containerHitArea;
 
-  var curr_score = "417";
-  var best_score = "56,435";
+  var curr_score = "1";
+  var best_score = "1";
   var drag = false;
+  var dropCnt = 1;
   var cellPos = Array(10);
-  var mainBkObj = [
-    {
-      pos_x: 169,
-      pos_y: 621.78,
-      width: 19.22,
-      height: 19.22,
-      roundRadius: 4,
-      startColor: "rgba(28, 108, 241, 1)",
-      endColor: "rgba(20, 225, 255, 1)"
-    },
-    {
-      pos_x: 190.78,
-      pos_y: 621.78,
-      width: 19.22,
-      height: 19.22,
-      roundRadius: 4,
-      startColor: "rgba(28, 108, 241, 1)",
-      endColor: "rgba(20, 225, 255, 1)"
-    },
-    {
-      pos_x: 169,
-      pos_y: 643.56,
-      width: 19.22,
-      height: 19.22,
-      roundRadius: 4,
-      startColor: "rgba(28, 108, 241, 1)",
-      endColor: "rgba(20, 225, 255, 1)"
-    }
-  ];
+  var temp;
 
+  var dragOffsetX;
+  var dragOffsetY;
+  var blockIndex = 0;
+  $(window).resize(function() {
+    // This will execute whenever the window is resized
+    $('.cell').remove();
+    blockIndex = 0;
+    drawPlayGround();
+  });
+
+  CanvasRenderingContext2D.prototype.roundRect = function (x, y, width, height, radius) {
+    if (width < 2 * radius) radius = width / 2;
+    if (height < 2 * radius) radius = height / 2;
+    this.beginPath();
+    this.moveTo(x + radius, y);
+    this.arcTo(x + width, y, x + width, y + height, radius);
+    this.arcTo(x + width, y + height, x, y + height, radius);
+    this.arcTo(x, y + height, x, y, radius);
+    this.arcTo(x, y, x + width, y, radius);
+    this.closePath();
+    return this;
+  }
   var block = new function () {
+    
     this.drawPanel = function (startX, startY, width, height, roundRadius, blockType) {
       var cell = new createjs.Shape();
-      cell.graphics.beginStroke("#FFFFFF");
+      blockIndex ++;
+      cell.graphics.beginStroke("rgba(255,255,255,0.55)");
       cell.graphics.setStrokeStyle(1);
       cell.snapToPixel = true;
       if (blockType == 'cellBlock') {
-        cell.graphics.beginRadialGradientFill(["rgba(255, 255, 255, 0.2)", "rgba(200, 242, 255, 0.16)"], [0, .5, 1], startX + width / 2, startY + height / 2, 12, startX + width / 2, startY + height / 2, 15);
-        cell.graphics.drawRoundRect(startX, startY, width, height, roundRadius);
-        cell.name = "cell";
-        destination.addChild(cell);
+        //cell.graphics.beginRadialGradientFill(["rgba(200, 242, 255, 0.22)", "rgba(200, 242, 255, 0.16)"], [0, 1], startX + width / 2, startY + height / 2, 12, startX + width / 2, startY + height / 2, 15);
+        // cell.graphics
+        //   //.beginStroke("lightgray")
+        //   .beginFill('rgba(200, 242, 255, 0.16)');
+        // cell.graphics.drawRoundRect(startX, startY, width, height, roundRadius);
+        // _dropShadowFilter = new createjs.DropShadowFilter(0, 90, 0x000000, 0.5, 0, 0, 15, 15, true, false, false);
+        // cell.filters = [_dropShadowFilter];
+        // cell.cache(startX, startY, width, height);
+        //destination.addChild(cell);
+        var p = $("#canvas");
+        var offset = p.offset();
+        $('.bg').append("<div class='cell' id='cell" + blockIndex +"'></div>");
+        $('#cell' + blockIndex).css({
+          left: offset.left + startX + 25,
+          top: offset.top + startY + 226
+        });
       }
       else if (blockType == 'ctrlBlock') {
         cell.graphics.beginRadialGradientFill(["rgba(255, 255, 255, 0.2)", "rgba(200, 242, 255, 0.16)"], [0, .5, 1], startX + width / 2, startY + height / 2, width / 2, startX + width / 2, startY + height / 2, width / 2 + 30);
@@ -74,14 +73,16 @@ $(document).ready(function () {
       }
       stage.update();
     };
-
+    var dragNum = 0;
     this.drawBlock = function (blockObj, drag) {
+      if(drag) {
+        draggerObj.removeAllChildren();
+      }
       for (var i = 0; i < blockObj.length; i++) {
         var blockcell = new createjs.Shape();
         blockcell.graphics.beginLinearGradientFill([blockObj[i].startColor, blockObj[i].endColor], [0, 1], blockObj[i].pos_x, blockObj[i].pos_y, blockObj[i].pos_x + blockObj[i].width, blockObj[i].pos_y + blockObj[i].height)
           .drawRoundRect(blockObj[i].pos_x, blockObj[i].pos_y, blockObj[i].width, blockObj[i].height, blockObj[i].roundRadius);
         if (drag) {
-          blockcell.name = "bkpiece" + i;
           draggerObj.addChild(blockcell);
         } else {
           stage.addChild(blockcell);
@@ -92,33 +93,47 @@ $(document).ready(function () {
         draggerObj.x = 0;
         draggerObj.y = 0;
         draggerObj.setBounds(0, 0, 190, 190);
-        stage.addChild(destination, draggerObj);
+        draggerObj.name = "dragger" + dragNum;
+        if(dragNum == 1) {
+          stage.addChild(destination);
+        } else {
+          stage.removeChild("dragger" + (dragNum - 1));
+        }
+        draggerObj.scaleX = draggerObj.scaleY = 1;
+        stage.addChild(draggerObj);
         stage.mouseMoveOutside = true;
+        console.log(stage);
+        dragNum ++;
         stage.update();
       }
-    };
+    }
   }
   init();
 
   function init() {
     stage = new createjs.Stage("canvas");
+    context = stage.canvas.getContext("2d");
+    createjs.Ticker.setFPS(FPS);
+    createjs.Touch.enable(stage);
     draggerObj = new createjs.Container();
     dropObj = new createjs.Container();
     destination = new createjs.Container();
-    containerHitArea = new createjs.DisplayObject();
-    enableHitArea(containerHitArea);
-
+    temp = new createjs.Container();
     for (var i = 0; i < 10; i++) {
       cellPos[i] = Array(10);
     }
+    screenWidth = $(window).height(); // New height
+    screenHeight = $(window).width(); // New width
+    generateBlock();
     //-------------------------------------------Background color
     var bg = new createjs.Shape();
     bg.graphics
-      .beginLinearGradientFill([gd_startColor, gd_endColor], [.1, .9], gd_startX, gd_startY, gd_endX, gd_endY)
+      .beginLinearGradientFill([bg_color, gd_endColor], [0, .9], gd_startX, gd_startY, gd_endX, gd_endY)
       .beginFill(bg_color)
       .drawRect(0, 0, canvas.width, canvas.height)
       .endFill();
     stage.addChild(bg);
+                  
     //--------------------------------------------Logo Icon
     var img = new Image();
     var logo_startX = 25;
@@ -132,7 +147,7 @@ $(document).ready(function () {
     stage.addChild(bitmap);
     stage.update();
     //--------------------------------------------Static text
-    drawText(244, 75, "LEADERBOARD", "14px Helvetica", "white");
+    drawText(244, 75, "LEADERBOARD", "14px Cera-Black", "white");
     //--------------------------------------------Dynamic text
     drawCurrentScore(curr_score);
     drawBestScore(best_score);
@@ -141,24 +156,22 @@ $(document).ready(function () {
     drawBottomPanel();
     createCtrlBlocks();
   }
-  function enableHitArea(displayObject) {
-    displayObject.hitArea = new createjs.Shape();
-    displayObject.hitArea.graphics.beginFill('#000').drawRect(0, 0, 200, 200).endFill();
-  }
+
   function drawCurrentScore(score) {
-    drawText(25, 106, score, "36px Helvetica", 'white');
+    drawText(25, 106, score, "36px Cera-BlackItalic", 'white');
   }
 
   function drawBestScore(score) {
-    drawText(25, 160, "The best", "12px Helvetica", 'white');
-    drawText(25, 190, score, "26px Helvetica", 'white');
+    drawText(25, 160, "The best", "12px Cera-MediumItalic", 'white');
+    drawText(25, 180, score, "26px Cera-BlackItalic", 'white');
   }
   function drawText(posX, posY, text, font, color) {
     var text = new createjs.Text(text, font, color);
     text.x = posX;
     text.y = posY;
     stage.addChild(text);
-    stage.update();
+    //stage.update();
+    createjs.Ticker.on("tick", stage)
   }
   function drawPlayGround() {
     var initPosX = 0;
@@ -171,156 +184,32 @@ $(document).ready(function () {
     destination.x = 25;
     destination.y = 226;
     destination.setBounds(-180, -640, 60, 60);
-    // destination.addEventListener('click', containerClickEventListener);
-    // destination.addChild(containerHitArea);
+
   }
-  function containerClickEventListener(event) {
-    console.log(event);
-    event.stopPropagation();
-  }
+
   function drawControlPanel() {
-    var ctrlData = [
-      {
-        pos_x: 25,
-        pos_y: 597,
-        width: 101.56,
-        height: 101.56,
-        radius: 6
-      },
-      {
-        pos_x: 130,
-        pos_y: 583,
-        width: 115.56,
-        height: 115.56,
-        radius: 6
-      },
-      {
-        pos_x: 249,
-        pos_y: 597,
-        width: 101.56,
-        height: 101.56,
-        radius: 6
-      }
-    ]
+
     for (var i = 0; i < ctrlData.length; i++) {
       block.drawPanel(ctrlData[i].pos_x, ctrlData[i].pos_y, ctrlData[i].width, ctrlData[i].height, ctrlData[i].radius, 'ctrlBlock');
     }
-    drawText(65.5, 580, "Hold", "10px Helvetica", "rgba(255,255,255,0.5");
-    drawText(284, 580, "Next", "10px Helvetica", "rgba(255,255,255,0.5");
+    drawText(65.5, 580, "Hold", "10px Cera-Black", "rgba(255,255,255,0.5");
+    drawText(284, 580, "Next", "10px Cera-Black", "rgba(255,255,255,0.5");
   }
   function drawBottomPanel() {
-    var ctrlData = [
-      {
-        pos_x: 20,
-        pos_y: 739,
-        width: 143,
-        height: 24,
-        radius: 4
-      },
-      {
-        pos_x: 20,
-        pos_y: 768,
-        width: 143,
-        height: 24,
-        radius: 4
-      },
-      {
-        pos_x: 210,
-        pos_y: 739,
-        width: 143,
-        height: 53,
-        radius: 6
-      }
-    ]
-    for (var i = 0; i < ctrlData.length; i++) {
-      block.drawPanel(ctrlData[i].pos_x, ctrlData[i].pos_y, ctrlData[i].width, ctrlData[i].height, ctrlData[i].radius, 'bottomBlock');
+    for (var i = 0; i < bottomCtrlData.length; i++) {
+      block.drawPanel(bottomCtrlData[i].pos_x, bottomCtrlData[i].pos_y, bottomCtrlData[i].width, bottomCtrlData[i].height, bottomCtrlData[i].radius, 'bottomBlock');
     }
-    drawText(36, 745, "Your Rank: 56 of 145", "12px Helvetica", "rgba(255,255,255,1)");
-    drawText(44, 774, "Your best: 56,435", "12px Helvetica", "rgba(255,255,255,1)");
-    drawText(251, 750, "00:35", "26px Helvetica", "rgba(255,255,255,1)");
+    drawText(36, 745, "Your Rank:", "12px Cera-MediumItalic", "rgba(255,255,255,1)");
+    drawText(105, 745, "1 of 1", "12px Cera-BlackItalic", "rgba(255,255,255,1)");
+    drawText(44, 774, "Your best:", "12px Cera-MediumItalic", "rgba(255,255,255,1)");
+    drawText(105, 774, "1", "12px Cera-BlackItalic", "rgba(255,255,255,1)");
+    drawText(251, 750, "00:00", "26px Cera-BlackItalic", "rgba(255,255,255,1)");
   }
 
   function createCtrlBlocks() {
-    var holdBkObj = [
-      {
-        pos_x: 51,
-        pos_y: 632,
-        width: 15,
-        height: 15,
-        roundRadius: 4,
-        startColor: "rgba(28, 108, 241, 1)",
-        endColor: "rgba(20, 225, 255, 1)"
-      },
-      {
-        pos_x: 68,
-        pos_y: 632,
-        width: 15,
-        height: 15,
-        roundRadius: 4,
-        startColor: "rgba(28, 108, 241, 1)",
-        endColor: "rgba(20, 225, 255, 1)"
-      },
-      {
-        pos_x: 85,
-        pos_y: 632,
-        width: 15,
-        height: 15,
-        roundRadius: 4,
-        startColor: "rgba(28, 108, 241, 1)",
-        endColor: "rgba(20, 225, 255, 1)"
-      },
-      {
-        pos_x: 51,
-        pos_y: 649,
-        width: 15,
-        height: 15,
-        roundRadius: 4,
-        startColor: "rgba(28, 108, 241, 1)",
-        endColor: "rgba(20, 225, 255, 1)"
-      }
-    ];
-    var nextBkObj = [
-      {
-        pos_x: 274.5,
-        pos_y: 648.5,
-        width: 15,
-        height: 15,
-        roundRadius: 4,
-        startColor: "rgba(241, 160, 28, 1)",
-        endColor: "rgba(255, 77, 67, 1)"
-      },
-      {
-        pos_x: 291.5,
-        pos_y: 648.5,
-        width: 15,
-        height: 15,
-        roundRadius: 4,
-        startColor: "rgba(241, 160, 28, 1)",
-        endColor: "rgba(255, 77, 67, 1)"
-      },
-      {
-        pos_x: 291.5,
-        pos_y: 631.5,
-        width: 15,
-        height: 15,
-        roundRadius: 4,
-        startColor: "rgba(241, 160, 28, 1)",
-        endColor: "rgba(255, 77, 67, 1)"
-      },
-      {
-        pos_x: 308.5,
-        pos_y: 631.5,
-        width: 15,
-        height: 15,
-        roundRadius: 4,
-        startColor: "rgba(241, 160, 28, 1)",
-        endColor: "rgba(255, 77, 67, 1)"
-      }
-    ];
     block.drawBlock(holdBkObj, false);
     block.drawBlock(mainBkObj, true);
     block.drawBlock(nextBkObj, false);
-
   }
 
   //----------------------------------------------------------------------------------------------------------------Game Logic
@@ -341,24 +230,28 @@ $(document).ready(function () {
     }
 
   });
-  var dropCnt = 1;
   //Mouse UP and SNAP====================
   draggerObj.on("pressup", function (evt) {
-
+    var pt = draggerObj.globalToLocal(stage.mouseX, stage.mouseY);
+    dragOffsetX = Math.ceil((pt.x - 169) / 32) * 32;
+    dragOffsetY = Math.ceil((pt.y - 621.78) / 32) * 32;
     if (intersect(evt.currentTarget, destination)) {
-      var matchedBks = getMatchedBlocks(evt.stageX, evt.stageY);
+      matchedBks = getMatchedBlocks(evt.stageX - dragOffsetX, evt.stageY - dragOffsetY);
       if (matchedBks.blockX != -1 && matchedBks.blockY != -1) {
+        
         draggerObj.alpha = 1;
         draggerObj.x = -244.55 + matchedBks.blockX * (block_size + block_gap);
         draggerObj.y = -904.4 + matchedBks.blockY * (block_size + block_gap);
 
         for (var i = 0; i < evt.currentTarget.children.length; i++) {
-          var x = evt.stageX + evt.currentTarget.children[i].graphics.command.x;
-          var y = evt.stageY + evt.currentTarget.children[i].graphics.command.y;
-          var matrix = checkBkIntersect(x, y);
+          var x = evt.stageX + evt.currentTarget.children[i].graphics.command.x - dragOffsetX;
+          var y = evt.stageY + evt.currentTarget.children[i].graphics.command.y - dragOffsetY;
+
+          var orgX = 194.89999389648438, orgY = 847.78;
+          var matrix = getBkPosition(orgX, orgY, x, y, 32);
           for (var j = 0; j < 10; j++) {
             for (var k = 0; k < 10; k++) {
-              if (cellPos[matrix.blockX][matrix.blockY] == 1) {
+              if (cellPos[matrix.blockX][matrix.blockY]) {
                 evt.currentTarget.alpha = 1;
                 draggerObj.scaleX = draggerObj.scaleY = 1;
                 draggerObj.x = 0;
@@ -368,17 +261,38 @@ $(document).ready(function () {
               }
             }
           }
-          cellPos[matrix.blockX][matrix.blockY] = 1;
+          $('#cell' + (matrix.blockY * 10 + matrix.blockX + 1)).css({
+            'z-index': -1
+          });
+          cellPos[matrix.blockX][matrix.blockY] = evt.currentTarget.children[i].graphics._fill.style.props.colors[0];
         }
         dropObj = draggerObj.clone(true);
         dropObj.name = "blocks" + dropCnt;
+        dropObj.offSetX = dragOffsetX;
+        dropObj.offSetY = dragOffsetY;
         destination.addChild(dropObj);
+        var blocks = destination.getChildByName("blocks" + dropCnt);
+        for (var j = 0; j < blocks.children.length; j++) {
+          blocks.children[j].name = "bkpiece" + dropCnt + j;
+          blocks.children[j].addEventListener("click", function (selEvt) {
+            var x = evt.stageX + selEvt.currentTarget.graphics.command.x - blocks.offSetX;
+            var y = evt.stageY + selEvt.currentTarget.graphics.command.y - blocks.offSetY;
+            var w = selEvt.currentTarget.graphics.command.w;
+            var h = selEvt.currentTarget.graphics.command.h;
+            drawSelArea(x, y);
+            stage.update();
+          });
+        }
+        
         dropCnt++;
+        generateBlock();
+        createCtrlBlocks();
+      } else {
+        evt.currentTarget.alpha = 1;
+        draggerObj.scaleX = draggerObj.scaleY = 1;
+        draggerObj.x = 0;
+        draggerObj.y = 0
       }
-      evt.currentTarget.alpha = 1;
-      draggerObj.scaleX = draggerObj.scaleY = 1;
-      draggerObj.x = 0;
-      draggerObj.y = 0
       stage.update(evt);
     } else {
       evt.currentTarget.alpha = 1;
@@ -387,66 +301,86 @@ $(document).ready(function () {
       draggerObj.y = 0
       stage.update(evt);
     }
-
-    var index;
-    for (var i = 1; i < dropCnt; i++) {
-      var blocks = destination.getChildByName("blocks" + i);
-      //console.log(blocks);
-      for (var j = 0; j < blocks.children.length; j++) {
-        index = j;
-        // var x = evt.stageX - blocks.children[j].graphics.command.x * zoomRatio;
-        // var y = evt.stageY - blocks.children[j].graphics.command.y * zoomRatio;
-
-        // blocks.children[j].addEventListener("dblclick", function(evt) {
-        //   blocks.removeChild(evt.currentTarget);
-        //   stage.update();
-        // });
-        blocks.children[j].addEventListener("click", function (selEvt) {
-          var x = evt.stageX + selEvt.currentTarget.graphics.command.x;
-          var y = evt.stageY + selEvt.currentTarget.graphics.command.y;
-          var w = selEvt.currentTarget.graphics.command.w;
-          var h = selEvt.currentTarget.graphics.command.h;
-          // var selPos = checkBkIntersect(x, y);
-          var target = selEvt.currentTarget;
-          
-          //target.alpha = 0.5;
-          var tar = selEvt.target
-          tar.graphics.clear().beginFill('#FF0000').drawRect(0, 0, 100,100).endFill();
-          console.log(target);
-          stage.update();
-        });
-      }
-    }
+    
+    stage.update();
   });
+  
+  function drawSelArea(x, y) {
+    var orgX = 194.89999389648438, orgY = 847.78;
+    var matrix = getBkPosition(orgX, orgY, x, y, 32);
+    var col = matrix.blockX;
+    var row = matrix.blockY;
+    var blocks = [];
+    if (cellPos[col - 1][row - 1] == cellPos[col][row] && cellPos[col - 1][row] == cellPos[col][row] && cellPos[col][row - 1] == cellPos[col][row]) {
+      temp.removeAllChildren();
+      stage.removeChild(temp);
+      temp.removeAllEventListeners('dblclick');
+      temp.addEventListener('dblclick', function (evt) {
+        var removedBlocks = [];
+        for (var i = 1; i < dropCnt; i++) {
+          blocks = destination.getChildByName("blocks" + i);
+          for (var j = 0; j < blocks.children.length; j++) {
+            var x = blocks.x + blocks.children[j].graphics.command.x * zoomRatio;
+            var y = blocks.y + blocks.children[j].graphics.command.y * zoomRatio;
+            var matrix = getBkPosition(1.707142857142884, 1.6222857142857947, x, y, 32);
+            if ((col - matrix.blockX >= 0) && (row - matrix.blockY >= 0) && (col - matrix.blockX < 2) && (row - matrix.blockY < 2)) {
+              cellPos[matrix.blockX][matrix.blockY] = null;
+              $('#cell' + (matrix.blockY * 10 + matrix.blockX + 1)).css({
+                'z-index': 1
+              })
+              removedBlocks.push(blocks.children[j]);
+            }
+          }
 
+        }
+        if (removedBlocks.length != 0) {
+          for (var j = 0; j < removedBlocks.length; j++) {
+            for (var i = 1; i < dropCnt; i++) {
+              blocks = destination.getChildByName("blocks" + i);
+              for (var k = 0; k < blocks.children.length; k++) {
+                if (blocks.children[k].name == removedBlocks[j].name) {
+                  blocks.removeChild(blocks.children[k]);
+                }
+              }
+            }
+          }
+        }
+        temp.removeAllChildren();
+        stage.removeChild(temp);
+        stage.update();
+      });
+      for (var i = col - 1; i <= col; i++) {
+        for (var j = row - 1; j <= row; j++) {
+          var clone = new createjs.Shape();
+          clone.graphics.beginLinearGradientFill(["rgba(255,255,255,1)", "rgba(255,255,255,0.4)"], [0, 1],
+            26 + i * (block_size + block_gap), 226 + j * (block_size + block_gap), 26 + i * (block_size + block_gap) + 30.6, 226 + j * (block_size + block_gap) + 30.6);
+          
+          clone.graphics.beginStroke("RGB(255, 255, 255)");
+          clone.graphics.setStrokeStyle(10);
+          clone.graphics.drawRoundRect(32 + i * (block_size + block_gap), 233 + j * (block_size + block_gap), 17, 17, 1);
+          var blurFilter = new createjs.BlurFilter(6, 6, 1);
+          clone.filters = [blurFilter];
+          var bounds = blurFilter.getBounds();
+          if (bounds != undefined)
+            clone.cache(32 + i * (block_size + block_gap), 233 + j * (block_size + block_gap), 17, 17);
+          temp.addChild(clone);
+        }
+      }
+      stage.addChild(temp);
 
-  function getMatchedBlocks(x, y) {
-    var orgX = 24, orgY = 226;
-    if ((x - orgX) % 32 < 10 && (y - orgY) % 32 < 10) {
-      return { blockX: parseInt((x - orgX) / 32), blockY: parseInt((y - orgY) / 32) };
     } else {
-      return { blockX: -1, blockY: -1 };
+      temp.removeAllChildren();
+      stage.removeChild(temp);
+    }
+    stage.update();
+  }
+
+  function generateBlock() {
+    var max = 3, min = 0;
+    var rndColor = bkColors[Math.floor(Math.random() * (max - min + 1)) + min];
+    for(var i = 0; i < mainBkObj.length; i ++) {
+      mainBkObj[i].startColor = rndColor.startColor;
+      mainBkObj[i].endColor = rndColor.endColor;
     }
   }
-  function checkBkIntersect(x, y) {
-    var orgX = 194.89999389648438, orgY = 847.78;
-    return { blockX: Math.round((x - orgX) / 32.71), blockY: Math.round((y - orgY) / 32.71) };
-  }
-  function intersect(obj1, obj2) {
-    var objBounds1 = obj1.getBounds().clone();
-    var objBounds2 = obj2.getBounds().clone();
-    var pt = obj1.globalToLocal(objBounds2.x, objBounds2.y);
-
-    var h1 = -(objBounds1.height / 2 + objBounds2.height);
-    var h2 = objBounds2.width / 2;
-    var w1 = -(objBounds1.width / 2 + objBounds2.width);
-    var w2 = objBounds2.width / 2;
-
-
-    if (pt.x > w2 || pt.x < w1) return false;
-    if (pt.y > h2 || pt.y < h1) return false;
-
-    return true;
-  }
-
 });

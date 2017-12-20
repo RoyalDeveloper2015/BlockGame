@@ -4,3 +4,63 @@ div {
 img {
   display: none;
 }
+@font-face {
+  font-family: Cera-Black;
+  src: url('../font/cera_font/Cera-Black.ttf') format('truetype');
+}
+@font-face {
+  font-family: Cera-BlackItalic;
+  src: url('../font/cera_font/Cera-BlackItalic.ttf') format('truetype');
+}
+@font-face {
+  font-family: Cera-Bold;
+  src: url('../font/cera_font/Cera-Bold.ttf') format('truetype');
+}
+@font-face {
+  font-family: Cera-BoldItalic;
+  src: url('../font/cera_font/Cera-BoldItalic.ttf') format('truetype');
+}
+@font-face {
+  font-family: Cera-Light;
+  src: url('../font/cera_font/Cera-Light.ttf') format('truetype');
+}
+@font-face {
+  font-family: Cera-LightItalic;
+  src: url('../font/cera_font/Cera-LightItalic.ttf') format('truetype');
+}
+@font-face {
+  font-family: Cera-Medium;
+  src: url('../font/cera_font/Cera-Medium.ttf') format('truetype');
+}
+@font-face {
+  font-family: Cera-MediumItalic;
+  src: url('../font/cera_font/Cera-MediumItalic.ttf') format('truetype');
+}
+@font-face {
+  font-family: Cera-Regular;
+  src: url('../font/cera_font/Cera-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: Cera-RegularItalic;
+  src: url('../font/cera_font/Cera-RegularItalic.ttf') format('truetype');
+}
+@font-face {
+  font-family: Cera-Thin;
+  src: url('../font/cera_font/Cera-Thin.ttf') format('truetype');
+}
+@font-face {
+  font-family: Cera-ThinItalic;
+  src: url('../font/cera_font/Cera-ThinItalic.ttf') format('truetype');
+}
+.cell {
+  position: absolute;
+  width: 30.6px;
+  pointer-events:none;
+  height: 30.6px;
+  background-color: rgba(200,242,255,0.16);
+  border-width: 0.5px;
+  border-style: solid;
+  border-color: rgba(255,255,255,0.55);
+  border-radius: 6px;
+  box-shadow: inset 0px 0px 15px 1px rgba(0,0,0,1);
+}

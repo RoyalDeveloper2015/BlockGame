@@ -1,0 +1,11 @@
+const gd_startX = 90;
+const gd_startY = 45;
+const gd_endX = 190;
+const gd_endY = 660;
+const bg_color = '#29005E';
+const gd_startColor = 'rgba(0,0,0,0.39)';
+const gd_endColor = 'rgba(0,0,0,0)';
+const block_size = 30.6;
+const block_gap = 2.11;
+const zoomRatio = (block_size / 21);
+const FPS = 60;
