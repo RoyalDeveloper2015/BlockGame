@@ -1,31 +1,5 @@
 var mainBkObj = [
-  {
-    pos_x: 169,
-    pos_y: 621.78,
-    width: 19.22,
-    height: 19.22,
-    roundRadius: 4,
-    startColor: "rgba(28, 108, 241, 1)",
-    endColor: "rgba(20, 225, 255, 1)"
-  },
-  {
-    pos_x: 190.78,
-    pos_y: 621.78,
-    width: 19.22,
-    height: 19.22,
-    roundRadius: 4,
-    startColor: "rgba(28, 108, 241, 1)",
-    endColor: "rgba(20, 225, 255, 1)"
-  },
-  {
-    pos_x: 169,
-    pos_y: 643.56,
-    width: 19.22,
-    height: 19.22,
-    roundRadius: 4,
-    startColor: "rgba(28, 108, 241, 1)",
-    endColor: "rgba(20, 225, 255, 1)"
-  }
+ 
 ];
 var bkColors = [
   {
@@ -43,6 +17,498 @@ var bkColors = [
   {
     startColor: "rgba(241, 160, 28, 1)",
     endColor: "rgba(255, 77, 67, 1)"
+  }
+];
+var bkPositions = [
+  {
+    start_x: 178,
+    start_y: 621.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 0,
+        bk_y: 1
+      }
+    ]
+  },
+  {
+    start_x: 169,
+    start_y: 621.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 1,
+        bk_y: 0
+      },
+      {
+        bk_x: 0,
+        bk_y: 1
+      }
+    ]
+  },
+  {
+    start_x: 159,
+    start_y: 621.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 1,
+        bk_y: 0
+      },
+      {
+        bk_x: 2,
+        bk_y: 0
+      },
+      {
+        bk_x: 1,
+        bk_y: 1
+      }
+    ]
+  },
+  {
+    start_x: 159,
+    start_y: 630.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 1,
+        bk_y: 0
+      },
+      {
+        bk_x: 2,
+        bk_y: 0
+      }
+    ]
+  },
+  {
+    start_x: 169,
+    start_y: 621.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 1,
+        bk_y: 0
+      },
+      {
+        bk_x: 0,
+        bk_y: 1
+      },
+      {
+        bk_x: 1,
+        bk_y: 1
+      }
+    ]
+  },
+  {
+    start_x: 169,
+    start_y: 630.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 1,
+        bk_y: 0
+      },
+      {
+        bk_x: 1,
+        bk_y: -1
+      },
+      {
+        bk_x: 0,
+        bk_y: 1
+      }
+    ]
+  },
+  {
+    start_x: 169,
+    start_y: 611.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 0,
+        bk_y: 1
+      },
+      {
+        bk_x: 1,
+        bk_y: 1
+      },
+      {
+        bk_x: 1,
+        bk_y: 2
+      }
+    ]
+  },
+  {
+    start_x: 169,
+    start_y: 611.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 1,
+        bk_y: 0
+      },
+      {
+        bk_x: 1,
+        bk_y: 1
+      },
+      {
+        bk_x: 1,
+        bk_y: 2
+      }
+    ]
+  },
+  {
+    start_x: 165,
+    start_y: 651.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 1,
+        bk_y: 0
+      },
+      {
+        bk_x: 1,
+        bk_y: -1
+      },
+      {
+        bk_x: 1,
+        bk_y: -2
+      }
+    ]
+  },
+  {
+    start_x: 146,
+    start_y: 631.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 1,
+        bk_y: 0
+      },
+      {
+        bk_x: 2,
+        bk_y: 0
+      },
+      {
+        bk_x: 3,
+        bk_y: 0
+      }
+    ]
+  },
+  {
+    start_x: 169,
+    start_y: 611.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 1,
+        bk_y: 0
+      },
+      {
+        bk_x: 0,
+        bk_y: 1
+      },
+      {
+        bk_x: 1,
+        bk_y: 1
+      },
+      {
+        bk_x: 0,
+        bk_y: 2
+      }
+    ]
+  },
+  {
+    start_x: 169,
+    start_y: 611.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 1,
+        bk_y: 0
+      },
+      {
+        bk_x: 0,
+        bk_y: 1
+      },
+      {
+        bk_x: 1,
+        bk_y: 1
+      },
+      {
+        bk_x: 1,
+        bk_y: 2
+      }
+    ]
+  },
+  {
+    start_x: 169,
+    start_y: 611.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 1,
+        bk_y: 0
+      },
+      {
+        bk_x: 1,
+        bk_y: 1
+      },
+      {
+        bk_x: 0,
+        bk_y: 2
+      },
+      {
+        bk_x: 1,
+        bk_y: 2
+      }
+    ]
+  },
+  {
+    start_x: 159,
+    start_y: 631.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 1,
+        bk_y: 0
+      },
+      {
+        bk_x: 1,
+        bk_y: -1
+      },
+      {
+        bk_x: 2,
+        bk_y: 0
+      },
+      {
+        bk_x: 1,
+        bk_y: 1
+      }
+    ]
+  },
+  {
+    start_x: 179,
+    start_y: 588.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 0,
+        bk_y: 1
+      },
+      {
+        bk_x: 0,
+        bk_y: 2
+      },
+      {
+        bk_x: 0,
+        bk_y: 3
+      },
+      {
+        bk_x: 0,
+        bk_y: 4
+      }
+    ]
+  },
+  {
+    start_x: 169,
+    start_y: 601.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 1,
+        bk_y: 0
+      },
+      {
+        bk_x: 0,
+        bk_y: 1
+      },
+      {
+        bk_x: 0,
+        bk_y: 2
+      },
+      {
+        bk_x: 0,
+        bk_y: 3
+      }
+    ]
+  },
+  {
+    start_x: 172,
+    start_y: 601.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 0,
+        bk_y: 1
+      },
+      {
+        bk_x: 1,
+        bk_y: 1
+      },
+      {
+        bk_x: 0,
+        bk_y: 2
+      },
+      {
+        bk_x: 0,
+        bk_y: 3
+      }
+    ]
+  },
+  {
+    start_x: 172,
+    start_y: 599.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 0,
+        bk_y: 1
+      },
+      {
+        bk_x: 0,
+        bk_y: 2
+      },
+      {
+        bk_x: 1,
+        bk_y: 2
+      },
+      {
+        bk_x: 0,
+        bk_y: 3
+      }
+    ]
+  },
+  {
+    start_x: 172,
+    start_y: 599.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 0,
+        bk_y: 1
+      },
+      {
+        bk_x: 0,
+        bk_y: 2
+      },
+      {
+        bk_x: 0,
+        bk_y: 3
+      },
+      {
+        bk_x: 1,
+        bk_y: 3
+      }
+    ]
+  },
+  {
+    start_x: 169,
+    start_y: 601.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 0,
+        bk_y: 1
+      },
+      {
+        bk_x: 1,
+        bk_y: 1
+      },
+      {
+        bk_x: 1,
+        bk_y: 2
+      },
+      {
+        bk_x: 1,
+        bk_y: 3
+      }
+    ]
+  },
+  {
+    start_x: 169,
+    start_y: 599.78,
+    offset_data: [
+      {
+        bk_x: 0,
+        bk_y: 0
+      },
+      {
+        bk_x: 0,
+        bk_y: 1
+      },
+      {
+        bk_x: 0,
+        bk_y: 2
+      },
+      {
+        bk_x: 1,
+        bk_y: 2
+      },
+      {
+        bk_x: 1,
+        bk_y: 3
+      }
+    ]
   }
 ]
 var holdBkObj = [

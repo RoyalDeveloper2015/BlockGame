@@ -10,7 +10,7 @@ $(document).ready(function () {
   var best_score = "1";
   var drag = false;
   var dropCnt = 1;
-  var cellPos = Array(10);
+  var cellPos = new Array(10);
   var temp;
 
   var dragOffsetX;
@@ -44,15 +44,6 @@ $(document).ready(function () {
       cell.graphics.setStrokeStyle(1);
       cell.snapToPixel = true;
       if (blockType == 'cellBlock') {
-        //cell.graphics.beginRadialGradientFill(["rgba(200, 242, 255, 0.22)", "rgba(200, 242, 255, 0.16)"], [0, 1], startX + width / 2, startY + height / 2, 12, startX + width / 2, startY + height / 2, 15);
-        // cell.graphics
-        //   //.beginStroke("lightgray")
-        //   .beginFill('rgba(200, 242, 255, 0.16)');
-        // cell.graphics.drawRoundRect(startX, startY, width, height, roundRadius);
-        // _dropShadowFilter = new createjs.DropShadowFilter(0, 90, 0x000000, 0.5, 0, 0, 15, 15, true, false, false);
-        // cell.filters = [_dropShadowFilter];
-        // cell.cache(startX, startY, width, height);
-        //destination.addChild(cell);
         var p = $("#canvas");
         var offset = p.offset();
         $('.bg').append("<div class='cell' id='cell" + blockIndex +"'></div>");
@@ -102,7 +93,6 @@ $(document).ready(function () {
         draggerObj.scaleX = draggerObj.scaleY = 1;
         stage.addChild(draggerObj);
         stage.mouseMoveOutside = true;
-        console.log(stage);
         dragNum ++;
         stage.update();
       }
@@ -120,11 +110,13 @@ $(document).ready(function () {
     destination = new createjs.Container();
     temp = new createjs.Container();
     for (var i = 0; i < 10; i++) {
-      cellPos[i] = Array(10);
+      cellPos[i] = new Array(10);
+      for(var j = 0; j < 10; j ++) {
+        cellPos[i][j] = null;
+      }
     }
     screenWidth = $(window).height(); // New height
     screenHeight = $(window).width(); // New width
-    generateBlock();
     //-------------------------------------------Background color
     var bg = new createjs.Shape();
     bg.graphics
@@ -183,7 +175,7 @@ $(document).ready(function () {
     }
     destination.x = 25;
     destination.y = 226;
-    destination.setBounds(-180, -640, 60, 60);
+    destination.setBounds(-165, -640, 80, 80);
 
   }
 
@@ -207,6 +199,7 @@ $(document).ready(function () {
   }
 
   function createCtrlBlocks() {
+    generateBlock();
     block.drawBlock(holdBkObj, false);
     block.drawBlock(mainBkObj, true);
     block.drawBlock(nextBkObj, false);
@@ -233,34 +226,37 @@ $(document).ready(function () {
   //Mouse UP and SNAP====================
   draggerObj.on("pressup", function (evt) {
     var pt = draggerObj.globalToLocal(stage.mouseX, stage.mouseY);
-    dragOffsetX = Math.ceil((pt.x - 169) / 32) * 32;
-    dragOffsetY = Math.ceil((pt.y - 621.78) / 32) * 32;
+    var bkOrigin = evt.currentTarget.children[0].graphics.command;
+    dragOffsetX = Math.ceil((pt.x - bkOrigin.x) / 32) * 32;
+    dragOffsetY = Math.ceil((pt.y - bkOrigin.y) / 32) * 32;
+    
     if (intersect(evt.currentTarget, destination)) {
       matchedBks = getMatchedBlocks(evt.stageX - dragOffsetX, evt.stageY - dragOffsetY);
       if (matchedBks.blockX != -1 && matchedBks.blockY != -1) {
-        
         draggerObj.alpha = 1;
-        draggerObj.x = -244.55 + matchedBks.blockX * (block_size + block_gap);
-        draggerObj.y = -904.4 + matchedBks.blockY * (block_size + block_gap);
-
+        draggerObj.x = -244.55 + matchedBks.blockX * (block_size + block_gap) - Math.round((bkOrigin.x - 169) * zoomRatio);
+        draggerObj.y = -904.4 + matchedBks.blockY * (block_size + block_gap) - Math.round((bkOrigin.y - 621.78) * zoomRatio);
+        var x = evt.stageX - dragOffsetX;
+        var y = evt.stageY - dragOffsetY;
+        var orgX = 25, orgY = 226;
+        var matrix;
         for (var i = 0; i < evt.currentTarget.children.length; i++) {
-          var x = evt.stageX + evt.currentTarget.children[i].graphics.command.x - dragOffsetX;
-          var y = evt.stageY + evt.currentTarget.children[i].graphics.command.y - dragOffsetY;
-
-          var orgX = 194.89999389648438, orgY = 847.78;
-          var matrix = getBkPosition(orgX, orgY, x, y, 32);
-          for (var j = 0; j < 10; j++) {
-            for (var k = 0; k < 10; k++) {
-              if (cellPos[matrix.blockX][matrix.blockY]) {
-                evt.currentTarget.alpha = 1;
-                draggerObj.scaleX = draggerObj.scaleY = 1;
-                draggerObj.x = 0;
-                draggerObj.y = 0
-                stage.update(evt);
-                return;
-              }
-            }
+          matrix = getBkPosition(orgX, orgY, x, y, 32.6);
+          matrix.blockX = matrix.blockX + Math.round((evt.currentTarget.children[i].graphics.command.x - bkOrigin.x) / 21.78);
+          matrix.blockY = matrix.blockY + Math.round((evt.currentTarget.children[i].graphics.command.y - bkOrigin.y) / 21.78);
+          if (cellPos[matrix.blockX][matrix.blockY] != null) {
+            evt.currentTarget.alpha = 1;
+            draggerObj.scaleX = draggerObj.scaleY = 1;
+            draggerObj.x = 0;
+            draggerObj.y = 0
+            stage.update(evt);
+            return;
           }
+        }
+        for (var i = 0; i < evt.currentTarget.children.length; i++) {
+          matrix = getBkPosition(orgX, orgY, x, y, 32.6);
+          matrix.blockX = matrix.blockX + Math.round((evt.currentTarget.children[i].graphics.command.x - bkOrigin.x) / 21.78);
+          matrix.blockY = matrix.blockY + Math.round((evt.currentTarget.children[i].graphics.command.y - bkOrigin.y) / 21.78);
           $('#cell' + (matrix.blockY * 10 + matrix.blockX + 1)).css({
             'z-index': -1
           });
@@ -275,11 +271,14 @@ $(document).ready(function () {
         for (var j = 0; j < blocks.children.length; j++) {
           blocks.children[j].name = "bkpiece" + dropCnt + j;
           blocks.children[j].addEventListener("click", function (selEvt) {
-            var x = evt.stageX + selEvt.currentTarget.graphics.command.x - blocks.offSetX;
-            var y = evt.stageY + selEvt.currentTarget.graphics.command.y - blocks.offSetY;
-            var w = selEvt.currentTarget.graphics.command.w;
-            var h = selEvt.currentTarget.graphics.command.h;
-            drawSelArea(x, y);
+            var x = evt.stageX - blocks.offSetX;
+            var y = evt.stageY - blocks.offSetY; 
+            var orgX = 25, orgY = 226;
+            var matrix = getBkPosition(orgX, orgY, x, y, 32.76);
+            matrix.blockX = matrix.blockX + Math.round((selEvt.currentTarget.graphics.command.x - bkOrigin.x) / 21.78);
+            matrix.blockY = matrix.blockY + Math.round((selEvt.currentTarget.graphics.command.y - bkOrigin.y) / 21.78);
+            
+            drawSelArea(matrix);
             stage.update();
           });
         }
@@ -305,9 +304,7 @@ $(document).ready(function () {
     stage.update();
   });
   
-  function drawSelArea(x, y) {
-    var orgX = 194.89999389648438, orgY = 847.78;
-    var matrix = getBkPosition(orgX, orgY, x, y, 32);
+  function drawSelArea(matrix) {
     var col = matrix.blockX;
     var row = matrix.blockY;
     var blocks = [];
@@ -357,12 +354,12 @@ $(document).ready(function () {
           
           clone.graphics.beginStroke("RGB(255, 255, 255)");
           clone.graphics.setStrokeStyle(10);
-          clone.graphics.drawRoundRect(32 + i * (block_size + block_gap), 233 + j * (block_size + block_gap), 17, 17, 1);
+          clone.graphics.drawRoundRect(30 + i * (block_size + block_gap), 233 + j * (block_size + block_gap), 19.2, 19.2, 1);
           var blurFilter = new createjs.BlurFilter(6, 6, 1);
           clone.filters = [blurFilter];
           var bounds = blurFilter.getBounds();
           if (bounds != undefined)
-            clone.cache(32 + i * (block_size + block_gap), 233 + j * (block_size + block_gap), 17, 17);
+            clone.cache(30 + i * (block_size + block_gap), 233 + j * (block_size + block_gap), 19.2, 19.2);
           temp.addChild(clone);
         }
       }
@@ -376,11 +373,22 @@ $(document).ready(function () {
   }
 
   function generateBlock() {
-    var max = 3, min = 0;
-    var rndColor = bkColors[Math.floor(Math.random() * (max - min + 1)) + min];
-    for(var i = 0; i < mainBkObj.length; i ++) {
-      mainBkObj[i].startColor = rndColor.startColor;
-      mainBkObj[i].endColor = rndColor.endColor;
+    var Cmax = bkColors.length - 1, Cmin = 0;
+    var Bmax = bkPositions.length - 1, Bmin = 0;
+    var bk_size = 21.78;
+    var rndColor = bkColors[Math.floor(Math.random() * (Cmax - Cmin + 1)) + Cmin];
+    var rndBkPos = bkPositions[Math.floor(Math.random() * (Bmax - Bmin + 1)) + Bmin];
+    mainBkObj = [];
+    for(var i = 0; i < rndBkPos.offset_data.length; i ++) {
+      var rndBlock = {};
+      rndBlock.pos_x = rndBkPos.start_x + rndBkPos.offset_data[i].bk_x * bk_size;
+      rndBlock.pos_y = rndBkPos.start_y + rndBkPos.offset_data[i].bk_y * bk_size;
+      rndBlock.startColor = rndColor.startColor;
+      rndBlock.endColor = rndColor.endColor;
+      rndBlock.width = 19.22;
+      rndBlock.height = 19.22;
+      rndBlock.roundRadius = 4;
+      mainBkObj.push(rndBlock);
     }
   }
 });

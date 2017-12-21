@@ -8,7 +8,7 @@ function getMatchedBlocks(x, y) {
   }
 }
 function getBkPosition(orgX, orgY, x, y, step) {
-  return { blockX: Math.round((x - orgX) / step), blockY: Math.round((y - orgY) / step) };
+  return { blockX: Math.floor((x - orgX) / (step-1)), blockY: Math.floor((y - orgY) / (step-1)) };
 }
 function intersect(obj1, obj2) {
   var objBounds1 = obj1.getBounds().clone();
